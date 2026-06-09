@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    [cite_start]image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: normalizacion
+    ports:
+      - [cite_start]"5432:5432"
+    volumes:
+      - [cite_start]pgdata:/var/lib/postgresql/data 
+      - ./sql/ddl:/docker-entrypoint-initdb.d/
+    networks:
+      - [cite_start]db_network
+  app:
+    build: .
+    container_name: python_normalizer
+    depends_on:
+      - db
+    [cite_start]environment:
+      - DB_HOST=db
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=normalizacion
+      - DB_PORT=5432
+    volumes:
+      - ./data:/app/data 
+    networks:
+      - [cite_start]db_network
+
+volumes:
+  pgdata:
+
+networks:
+  db_network:
+    driver: bridge
